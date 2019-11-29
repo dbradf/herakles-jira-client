@@ -1,7 +1,7 @@
 """Authentication information."""
 import abc
 from enum import Enum, auto
-from typing import Dict, Tuple, ClassVar
+from typing import Dict, Tuple, ClassVar, Optional
 
 from jira import JIRA
 
@@ -25,7 +25,9 @@ class JiraAuth(abc.ABC):
         """Get the type of authentication to use."""
 
     @abc.abstractmethod
-    def _connect(self, cls: ClassVar, options: Dict, timeout: int):
+    def _connect(
+        self, cls: ClassVar, options: Dict, timeout: int, custom_field_map: Optional[Dict]
+    ):
         """
         Connect to the specified jira instance.
 
@@ -52,10 +54,11 @@ class JiraAuthBasic(JiraAuth):
         """Return a user, password tuple that can be used to configure JIRA basic auth."""
         return self.username, self.password
 
-    def _connect(self, cls: ClassVar, options: Dict, timeout: int):
-        self._jira = JIRA(
-            options=options, basic_auth=self._basic_auth(), validate=True, timeout=timeout
-        )
+    def _connect(
+        self, cls: ClassVar, options: Dict, timeout: int, custom_field_map: Optional[Dict]
+    ):
+        jira = JIRA(options=options, basic_auth=self._basic_auth(), validate=True, timeout=timeout)
+        return cls(jira, custom_field_map)
 
 
 class JiraAuthOAuth(JiraAuth):
@@ -116,5 +119,8 @@ class JiraAuthOAuth(JiraAuth):
             "key_cert": self.key_cert,
         }
 
-    def _connect(self, cls: ClassVar, options: Dict, timeout: int):
-        return cls(JIRA(options=options, oauth=self._get_oauth(), validate=True, timeout=timeout))
+    def _connect(
+        self, cls: ClassVar, options: Dict, timeout: int, custom_field_map: Optional[Dict]
+    ):
+        jira = JIRA(options=options, oauth=self._get_oauth(), validate=True, timeout=timeout)
+        return cls(jira, custom_field_map)

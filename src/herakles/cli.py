@@ -15,22 +15,27 @@ def get_bfs(days_back: int):
     query = {
         "and": {
             "project": {"=": "BF"},
-            "issueFunction": {"in": {
-                "linkedIssuesOf": {
-                    "subquery": {
-                        "project": {"in": ["TIG", "SERVER", "BACKPORT", "BUILD", "EVG", "MCI"]}},
-                    "linktype": "is depended on by",
+            "issueFunction": {
+                "in": {
+                    "linkedIssuesOf": {
+                        "subquery": {
+                            "project": {"in": ["TIG", "SERVER", "BACKPORT", "BUILD", "EVG", "MCI"]}
+                        },
+                        "linktype": "is depended on by",
+                    }
                 }
-            }},
-            "createdDate": {">": f"-{days_back}d"}
+            },
+            "createdDate": {">": f"-{days_back}d"},
         }
     }
 
     auth = JiraAuthOAuth.from_yaml_file("config.yml")
     jira = JiraWrapper.connect("https://jira.mongodb.org", auth)
-    issues = jira.search(query)
+    jira.add_custom_fields_from_file("config.yml")
+
+    issues = jira.search_issues(query)
     for issue in issues:
-        print(f"{issue.key}: {issue.fields.summary}")
+        print(f"{issue.key}: {issue.summary}: {issue.score}")
 
 
 @cli.command()

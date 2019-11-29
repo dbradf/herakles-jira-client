@@ -1,36 +1,16 @@
 """
 Builder for jql queries.
 
-Make it easy to programatically build jira queries.
-
+Make it easy to programmatically build jira queries.
 """
 from enum import Enum, auto
 from typing import Dict, Any
 
 
-COMPARE = {
-    "=",
-    "!=",
-    ">",
-    ">=",
-    "<",
-    "<=",
-}
-
-COMPARE_LIST = {
-    "IN",
-    "NOT IN",
-}
-
-CONNECTORS = {
-    "AND",
-    "OR",
-}
-
-FUNCTIONS = {
-    "linkedissuesof",
-    "membersOf",
-}
+COMPARE = {"=", "!=", ">", ">=", "<", "<="}
+COMPARE_LIST = {"IN", "NOT IN"}
+CONNECTORS = {"AND", "OR"}
+FUNCTIONS = {"linkedissuesof", "membersOf"}
 
 
 class _OpType(Enum):
@@ -72,16 +52,14 @@ def _parse_value(value: Any) -> str:
 
 def _parse_function(key: str, value: Dict) -> str:
     if key.lower() == "linkedissuesof":
-        args = [
-            _parse(value["subquery"])
-        ]
+        args = [_parse(value["subquery"])]
         if "linktype" in value:
             args.append(value["linktype"])
 
         def arg_joiner():
-            return "\", \""
+            return '", "'
 
-        return f"linkedIssuesOf(\"{arg_joiner().join(args)}\")"
+        return f'linkedIssuesOf("{arg_joiner().join(args)}")'
 
 
 def _parse_comparison_list(query: Dict) -> str:
