@@ -1,5 +1,7 @@
 # herakles
 
+Wrapper and tools around the Jira api.
+
 
 ## Testing
 

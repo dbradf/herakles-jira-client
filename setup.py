@@ -39,7 +39,7 @@ setup(
     name='herakles',
     version=version,
     license='Apache License, Version 2.0',
-    description='',
+    description='Tools for working with Jira',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='David Bradford',
@@ -62,9 +62,10 @@ setup(
     ],
     install_requires=[
         'Click == 7.0',
-        'pylibversion == 0.1.0',
-        'PyYAML == 5.1',
-        'requests == 2.22.0',
+        'jira ~= 2.0',
+        'pylibversion ~= 0.1',
+        'PyYAML ~= 5.0',
+        'requests == 2.22',
     ],
     entry_points={
         'console_scripts': [
