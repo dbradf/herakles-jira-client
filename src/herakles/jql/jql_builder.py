@@ -4,13 +4,13 @@ Builder for jql queries.
 Make it easy to programmatically build jira queries.
 """
 from enum import Enum, auto
-from typing import Dict, Any
+from typing import Dict, Any, Iterable
 
 
-COMPARE = {"=", "!=", ">", ">=", "<", "<="}
+COMPARE = {"=", "!=", ">", ">=", "<", "<=", "~", "!~"}
 COMPARE_LIST = {"IN", "NOT IN"}
 CONNECTORS = {"AND", "OR"}
-FUNCTIONS = {"linkedissuesof", "membersOf"}
+FUNCTIONS = {"linkedissuesof", "membersOf", "issuefieldmatch"}
 
 
 class _OpType(Enum):
@@ -51,15 +51,19 @@ def _parse_value(value: Any) -> str:
 
 
 def _parse_function(key: str, value: Dict) -> str:
+    def arg_joiner():
+        return '", "'
+
     if key.lower() == "linkedissuesof":
         args = [_parse(value["subquery"])]
         if "linktype" in value:
             args.append(value["linktype"])
 
-        def arg_joiner():
-            return '", "'
-
         return f'linkedIssuesOf("{arg_joiner().join(args)}")'
+
+    if key.lower() == "issuefieldmatch":
+        args = [_parse(value["subquery"]), value["field"], value["value"]]
+        return f'issueFieldMatch("{arg_joiner().join(args)}")'
     return ""
 
 
@@ -87,12 +91,14 @@ def _parse_operator(query: Dict) -> str:
     return ""
 
 
-def _parse_field_search(field: str, search: Dict) -> str:
-    return f"{field} {_parse_operator(search)}"
+def _parse_field_search(field: str, search: Any) -> str:
+    if isinstance(search, dict):
+        return f"'{field}' {_parse_operator(search)}"
+    return f"'{field}' {_parse_value(search)}"
 
 
-def _parse_connector(connector: str, value: Dict) -> str:
-    return connector.upper().join([f" ({_parse({k: v})}) " for k, v in value.items()])
+def _parse_connector(connector: str, values: Iterable) -> str:
+    return connector.upper().join([f" ({_parse(item)}) " for item in values])
 
 
 def _parse_item(key: str, value: Any) -> str:
