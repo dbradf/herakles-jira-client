@@ -60,6 +60,7 @@ def _parse_function(key: str, value: Dict) -> str:
             return '", "'
 
         return f'linkedIssuesOf("{arg_joiner().join(args)}")'
+    return ""
 
 
 def _parse_comparison_list(query: Dict) -> str:

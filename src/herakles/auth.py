@@ -1,7 +1,7 @@
 """Authentication information."""
 import abc
 from enum import Enum, auto
-from typing import Dict, Tuple, ClassVar, Optional
+from typing import Dict, Tuple, Callable, Optional
 
 from jira import JIRA
 
@@ -26,7 +26,7 @@ class JiraAuth(abc.ABC):
 
     @abc.abstractmethod
     def _connect(
-        self, cls: ClassVar, options: Dict, timeout: int, custom_field_map: Optional[Dict]
+        self, cls: Callable, options: Dict, timeout: int, custom_field_map: Optional[Dict]
     ):
         """
         Connect to the specified jira instance.
@@ -34,6 +34,7 @@ class JiraAuth(abc.ABC):
         :param cls: JiraWrapper class constructor.
         :param options: options to connect to.
         :param timeout: Network timeout.
+        :param custom_field_map: Mapping of custom jira fields.
         :return: Jira Wrapper.
         """
 
@@ -41,8 +42,8 @@ class JiraAuth(abc.ABC):
 class JiraAuthBasic(JiraAuth):
     """Basic Authentication for Jira."""
 
-    def __init__(self, username: str, password: str = None):
-        super(JiraAuthBasic).__init__()
+    def __init__(self, username: str, password: Optional[str] = None):
+        super().__init__()
         self.username = username
         self.password = password
 
@@ -50,13 +51,22 @@ class JiraAuthBasic(JiraAuth):
         """Get the type of authentication to use."""
         return AuthType.BASIC
 
-    def _basic_auth(self) -> Tuple[str, str]:
+    def _basic_auth(self) -> Tuple[str, Optional[str]]:
         """Return a user, password tuple that can be used to configure JIRA basic auth."""
         return self.username, self.password
 
     def _connect(
-        self, cls: ClassVar, options: Dict, timeout: int, custom_field_map: Optional[Dict]
+        self, cls: Callable, options: Dict, timeout: int, custom_field_map: Optional[Dict]
     ):
+        """
+        Connect to the specified jira instance.
+
+        :param cls: JiraWrapper class constructor.
+        :param options: options to connect to.
+        :param timeout: Network timeout.
+        :param custom_field_map: Mapping of custom jira fields.
+        :return: Jira Wrapper.
+        """
         jira = JIRA(options=options, basic_auth=self._basic_auth(), validate=True, timeout=timeout)
         return cls(jira, custom_field_map)
 
@@ -67,7 +77,7 @@ class JiraAuthOAuth(JiraAuth):
     def __init__(
         self, access_token: str, access_token_secret: str, consumer_key: str, key_cert: str
     ):
-        super(JiraAuthOAuth).__init__()
+        super().__init__()
         self.access_token = access_token
         self.access_token_secret = access_token_secret
         self.consumer_key = consumer_key
@@ -120,7 +130,16 @@ class JiraAuthOAuth(JiraAuth):
         }
 
     def _connect(
-        self, cls: ClassVar, options: Dict, timeout: int, custom_field_map: Optional[Dict]
+        self, cls: Callable, options: Dict, timeout: int, custom_field_map: Optional[Dict]
     ):
+        """
+        Connect to the specified jira instance.
+
+        :param cls: JiraWrapper class constructor.
+        :param options: options to connect to.
+        :param timeout: Network timeout.
+        :param custom_field_map: Mapping of custom jira fields.
+        :return: Jira Wrapper.
+        """
         jira = JIRA(options=options, oauth=self._get_oauth(), validate=True, timeout=timeout)
         return cls(jira, custom_field_map)
