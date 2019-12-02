@@ -61,15 +61,8 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
     install_requires=[
-        'Click == 7.0',
         'jira ~= 2.0',
         'pylibversion ~= 0.1',
         'PyYAML ~= 5.0',
-        'requests == 2.22',
     ],
-    entry_points={
-        'console_scripts': [
-            'cli=herakles.cli:main',
-        ]
-    },
 )
