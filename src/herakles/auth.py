@@ -43,6 +43,12 @@ class JiraAuthBasic(JiraAuth):
     """Basic Authentication for Jira."""
 
     def __init__(self, username: str, password: Optional[str] = None):
+        """
+        Create a basic auth configuration for jira.
+
+        :param username: Username to use.
+        :param password: Password to use.
+        """
         super().__init__()
         self.username = username
         self.password = password
@@ -77,6 +83,14 @@ class JiraAuthOAuth(JiraAuth):
     def __init__(
         self, access_token: str, access_token_secret: str, consumer_key: str, key_cert: str
     ):
+        """
+        Create an OAuth configuration for Jira.
+
+        :param access_token: Access token to use.
+        :param access_token_secret: Access token secret to use.
+        :param consumer_key: Consumer key to use.
+        :param key_cert: Key certificate to use.
+        """
         super().__init__()
         self.access_token = access_token
         self.access_token_secret = access_token_secret

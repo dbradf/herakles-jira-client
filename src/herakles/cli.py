@@ -23,6 +23,7 @@ def get_bfgs():
                     {"summary": {"!~": '"System Unresponsive"'}},
                     {"summary": {"!~": '"System Timed Out"'}},
                     {"Failing Tasks": {"!=": "package"}},
+                    {"createdDate": {">": "-14d"}},
                     {"key": {">=": "BFG-10296"}},
                     {
                         "Evergreen Project": {
