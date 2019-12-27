@@ -63,7 +63,7 @@ class JiraWrapper(object):
         """
         return IssueWrapper(self._jira.issue(jira_issue), self._custom_field_map)
 
-    def search_issues(self, search: Dict):
+    def search_issues(self, search: Dict, expand=None):
         """
         Search for jira issues.
 
@@ -71,9 +71,12 @@ class JiraWrapper(object):
         :return: Iterable of issues found.
         """
         jql = jql_from_dict(search)
-        results = self._jira.search_issues(jql)
+        results = self._jira.search_issues(jql, expand=expand)
         for issue in results:
             yield IssueWrapper(issue, self._custom_field_map)
+
+    def sprints_by_name(self, name):
+        return self._jira.sprints_by_name(name)
 
 
 class IssueWrapper(object):
@@ -98,6 +101,9 @@ class IssueWrapper(object):
         """
         if item in self._custom_field_map:
             return getattr(self, self._custom_field_map[item])
+
+        if hasattr(self._issue, item):
+            return getattr(self._issue, item)
 
         return getattr(self._issue.fields, item)
 
