@@ -3,8 +3,10 @@ Builder for jql queries.
 
 Make it easy to programmatically build jira queries.
 """
+from __future__ import annotations
+
 from enum import Enum, auto
-from typing import Dict, Any, Iterable
+from typing import Dict, Any, Iterable, Tuple
 
 
 COMPARE = {"=", "!=", ">", ">=", "<", "<=", "~", "!~"}
@@ -21,7 +23,7 @@ class _OpType(Enum):
     UNKNOWN = auto()
 
     @classmethod
-    def get_type(cls, symbol: str):
+    def get_type(cls, symbol: str) -> _OpType:
         symbol = symbol.upper()
         if symbol in COMPARE:
             return _OpType.COMPARE
@@ -34,7 +36,7 @@ class _OpType(Enum):
         return _OpType.UNKNOWN
 
 
-def _single_entry(entry: dict) -> (Any, Any):
+def _single_entry(entry: dict) -> Tuple[Any, Any]:
     assert len(entry) == 1
     return [(k, v) for k, v in entry.items()][0]
 
@@ -51,7 +53,7 @@ def _parse_value(value: Any) -> str:
 
 
 def _parse_function(key: str, value: Dict) -> str:
-    def arg_joiner():
+    def arg_joiner() -> str:
         return '", "'
 
     if key.lower() == "linkedissuesof":

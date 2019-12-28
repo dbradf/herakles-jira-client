@@ -1,7 +1,6 @@
-black == 19.3b0
-mypy == 0.750
-pydocstyle ~= 4.0
 pytest ~= 5.3
+pytest-black == 0.3.7
 pytest-cov ~= 2.8
-pytest-flake8 != 1.0
-
+pytest-flake8 ~= 1.0
+pytest-mypy ~= 0.4
+pytest-pydocstyle ~= 2.0

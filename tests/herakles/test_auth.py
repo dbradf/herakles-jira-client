@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import herakles.auth as under_test
 
@@ -14,23 +14,6 @@ class TestJiraAuthBasic:
         auth = under_test.JiraAuthBasic("username", "password")
 
         assert auth.auth_type() == under_test.AuthType.BASIC
-
-    @patch(ns("JIRA"))
-    def test_connect(self, jira_mock):
-        jira_wrapper = MagicMock()
-        username = "username"
-        password = "password"
-        options = {}
-        timeout = 20
-
-        auth = under_test.JiraAuthBasic(username, password)
-
-        jira = auth._connect(jira_wrapper, options, timeout, None)
-
-        assert jira == jira_wrapper.return_value
-        jira_mock.assert_called_with(
-            options=options, basic_auth=(username, password), validate=True, timeout=timeout
-        )
 
 
 class TestJiraAuthOAuth:
@@ -62,9 +45,7 @@ class TestJiraAuthOAuth:
             "consumer_key": "key",
             "key_certificate": "cert",
         }
-        auth_file = {
-            "jira_key": auth_dict
-        }
+        auth_file = {"jira_key": auth_dict}
 
         read_file_mock.return_value = auth_file
 
@@ -74,24 +55,3 @@ class TestJiraAuthOAuth:
         assert auth.access_token_secret == auth_dict["access_token_secret"]
         assert auth.consumer_key == auth_dict["consumer_key"]
         assert auth.key_cert == auth_dict["key_certificate"]
-
-    @patch(ns("JIRA"))
-    def test_connect(self, jira_mock):
-        jira_wrapper = MagicMock()
-        auth_dict = {
-            "access_token": "token",
-            "access_token_secret": "secret",
-            "consumer_key": "key",
-            "key_certificate": "cert",
-        }
-        options = {}
-        timeout = 20
-
-        auth = under_test.JiraAuthOAuth.from_dict(auth_dict)
-
-        jira = auth._connect(jira_wrapper, options, timeout, None)
-
-        assert jira == jira_wrapper.return_value
-        jira_mock.assert_called_with(
-            options=options, oauth=auth._get_oauth(), validate=True, timeout=timeout
-        )

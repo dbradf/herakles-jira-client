@@ -1,9 +1,7 @@
 """Authentication information."""
 import abc
 from enum import Enum, auto
-from typing import Dict, Tuple, Callable, Optional
-
-from jira import JIRA
+from typing import Dict, Tuple, Optional
 
 from herakles.util.file_utils import read_yaml_file
 
@@ -23,20 +21,12 @@ class JiraAuth(abc.ABC):
     @abc.abstractmethod
     def auth_type(self) -> AuthType:
         """Get the type of authentication to use."""
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def _connect(
-        self, cls: Callable, options: Dict, timeout: int, custom_field_map: Optional[Dict]
-    ):
-        """
-        Connect to the specified jira instance.
-
-        :param cls: JiraWrapper class constructor.
-        :param options: options to connect to.
-        :param timeout: Network timeout.
-        :param custom_field_map: Mapping of custom jira fields.
-        :return: Jira Wrapper.
-        """
+    def auth_dict(self) -> Dict:
+        """Get a dictionary for authentication."""
+        raise NotImplementedError
 
 
 class JiraAuthBasic(JiraAuth):
@@ -61,20 +51,9 @@ class JiraAuthBasic(JiraAuth):
         """Return a user, password tuple that can be used to configure JIRA basic auth."""
         return self.username, self.password
 
-    def _connect(
-        self, cls: Callable, options: Dict, timeout: int, custom_field_map: Optional[Dict]
-    ):
-        """
-        Connect to the specified jira instance.
-
-        :param cls: JiraWrapper class constructor.
-        :param options: options to connect to.
-        :param timeout: Network timeout.
-        :param custom_field_map: Mapping of custom jira fields.
-        :return: Jira Wrapper.
-        """
-        jira = JIRA(options=options, basic_auth=self._basic_auth(), validate=True, timeout=timeout)
-        return cls(jira, custom_field_map)
+    def auth_dict(self) -> Dict:
+        """Get a dictionary for authentication."""
+        return {"basic_auth": self._basic_auth()}
 
 
 class JiraAuthOAuth(JiraAuth):
@@ -98,7 +77,7 @@ class JiraAuthOAuth(JiraAuth):
         self.key_cert = key_cert
 
     @classmethod
-    def from_dict(cls, auth_config: Dict):
+    def from_dict(cls, auth_config: Dict) -> JiraAuth:
         """
         Create a JiraAuth object for OAuth from a dictionary.
 
@@ -116,7 +95,7 @@ class JiraAuthOAuth(JiraAuth):
         )
 
     @classmethod
-    def from_yaml_file(cls, yaml_file: str, config_key: str = DEFAULT_AUTH_KEY):
+    def from_yaml_file(cls, yaml_file: str, config_key: str = DEFAULT_AUTH_KEY) -> JiraAuth:
         """
         Create a JiraAuth object for OAuth from a yaml file.
 
@@ -143,17 +122,6 @@ class JiraAuthOAuth(JiraAuth):
             "key_cert": self.key_cert,
         }
 
-    def _connect(
-        self, cls: Callable, options: Dict, timeout: int, custom_field_map: Optional[Dict]
-    ):
-        """
-        Connect to the specified jira instance.
-
-        :param cls: JiraWrapper class constructor.
-        :param options: options to connect to.
-        :param timeout: Network timeout.
-        :param custom_field_map: Mapping of custom jira fields.
-        :return: Jira Wrapper.
-        """
-        jira = JIRA(options=options, oauth=self._get_oauth(), validate=True, timeout=timeout)
-        return cls(jira, custom_field_map)
+    def auth_dict(self) -> Dict:
+        """Get a dictionary for authentication."""
+        return {"oauth": self._get_oauth()}
