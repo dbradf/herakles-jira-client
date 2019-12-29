@@ -1,4 +1,4 @@
-# herakles Jira tool
+# herakles jira tool
 
 Tools for working with the [Jira API](https://jira.readthedocs.io/en/master/index.html).
 
