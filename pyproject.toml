@@ -19,6 +19,7 @@ pytest-cov = "^2.8"
 pytest-flake8 = "^1.0"
 pytest-mypy = "^0.4"
 pytest-pydocstyle = "^2.0"
+pytest-sugar = "^0.9.2"
 
 [tool.black]
 line-length = 100
