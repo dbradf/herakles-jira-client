@@ -1,7 +1,7 @@
 """Wrapper for jira object."""
 from __future__ import annotations
 
-from typing import Dict, Optional, Any, Iterable
+from typing import Any, Dict, Iterable, Optional
 
 from jira import JIRA, Issue
 

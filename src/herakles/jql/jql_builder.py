@@ -6,8 +6,7 @@ Make it easy to programmatically build jira queries.
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import Dict, Any, Iterable, Tuple
-
+from typing import Any, Dict, Iterable, Tuple
 
 COMPARE = {"=", "!=", ">", ">=", "<", "<=", "~", "!~"}
 COMPARE_LIST = {"IN", "NOT IN"}

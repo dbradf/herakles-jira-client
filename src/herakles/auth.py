@@ -1,7 +1,7 @@
 """Authentication information."""
 import abc
 from enum import Enum, auto
-from typing import Dict, Tuple, Optional
+from typing import Dict, Optional, Tuple
 
 from herakles.util.file_utils import read_yaml_file
 
