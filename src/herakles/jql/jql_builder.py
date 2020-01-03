@@ -10,6 +10,7 @@ from typing import Any, Dict, Iterable, Tuple
 
 COMPARE = {"=", "!=", ">", ">=", "<", "<=", "~", "!~"}
 COMPARE_LIST = {"IN", "NOT IN"}
+COMPARE_EMPTY = {"IS", "IS NOT"}
 CONNECTORS = {"AND", "OR"}
 FUNCTIONS = {"linkedissuesof", "membersOf", "issuefieldmatch"}
 
@@ -17,6 +18,7 @@ FUNCTIONS = {"linkedissuesof", "membersOf", "issuefieldmatch"}
 class _OpType(Enum):
     COMPARE = auto()
     COMPARE_LIST = auto()
+    COMPARE_EMPTY = auto()
     CONNECTOR = auto()
     FUNCTION = auto()
     UNKNOWN = auto()
@@ -28,6 +30,8 @@ class _OpType(Enum):
             return _OpType.COMPARE
         if symbol in COMPARE_LIST:
             return _OpType.COMPARE_LIST
+        if symbol in COMPARE_EMPTY:
+            return _OpType.COMPARE_EMPTY
         if symbol in CONNECTORS:
             return _OpType.CONNECTOR
         if symbol in FUNCTIONS:
@@ -75,6 +79,18 @@ def _parse_comparison_list(query: Dict) -> str:
     return f"{operator} {_parse_value(values)}"
 
 
+def _parse_comparison_empty(query: Dict) -> str:
+    assert len(query) == 1
+    operator, values = _single_entry(query)
+
+    value = _parse_value(values)
+
+    if value.lower() != "empty":
+        raise ValueError("'IS' and 'IS NOT' must by follow by 'EMPTY'")
+
+    return f"{operator} {value}"
+
+
 def _parse_comparison(query: Dict) -> str:
     assert len(query) == 1
     operator, value = _single_entry(query)
@@ -89,6 +105,8 @@ def _parse_operator(query: Dict) -> str:
         return _parse_comparison(query)
     if key_type == _OpType.COMPARE_LIST:
         return _parse_comparison_list(query)
+    if key_type == _OpType.COMPARE_EMPTY:
+        return _parse_comparison_empty(query)
     return ""
 
 
