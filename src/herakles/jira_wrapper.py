@@ -1,9 +1,10 @@
 """Wrapper for jira object."""
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Callable, Dict, Iterable, Iterator, Optional
 
 from jira import JIRA, Issue
+from jira.client import ResultList
 
 from herakles.auth import JiraAuth
 from herakles.jql.jql_builder import jql_from_dict
@@ -70,7 +71,7 @@ class JiraWrapper(object):
         """
         return IssueWrapper(self.jira.issue(jira_issue), self._custom_field_map)
 
-    def search_issues(self, search: Dict, **kwargs: Optional[Dict]) -> Iterable[IssueWrapper]:
+    def search_issues(self, search: Dict, **kwargs: Optional[Dict]) -> Iterable[Any]:
         """
         Search for jira issues.
 
@@ -78,9 +79,14 @@ class JiraWrapper(object):
         :return: Iterable of issues found.
         """
         jql = jql_from_dict(search)
-        results = self.jira.search_issues(jql, **kwargs)
-        for issue in results:
-            yield IssueWrapper(issue, self._custom_field_map)
+
+        def transform_fn(result: Issue) -> IssueWrapper:
+            return IssueWrapper(result, self._custom_field_map)
+
+        def get_more_fn(start_idx: int) -> ResultList:
+            return self.jira.search_issues(jql, startAt=start_idx, **kwargs)
+
+        return _JiraResponseIterable(get_more_fn(0), transform_fn, get_more_fn)
 
     def sprints_by_name(self, name: str) -> Dict:
         """
@@ -90,6 +96,43 @@ class JiraWrapper(object):
         :return: Sprint with given name.
         """
         return self.jira.sprints_by_name(name)
+
+
+class _JiraResponseIterable(object):
+    """Object to iterate over paginated jira results."""
+
+    def __init__(
+        self,
+        results: ResultList,
+        transform_fn: Callable[[Any], Any],
+        get_more_fn: Callable[[int], ResultList],
+    ):
+        """
+        Create a JiraResponseIterable.
+
+        :param results: Response object from Jira.
+        :param transform_fn: Function to transform Jira responses.
+        :param get_more_fn: Function to get next page of data.
+        """
+        self.results = results
+        self.transform_fn = transform_fn
+        self.get_more_fn = get_more_fn
+
+    def __iter__(self) -> Iterator:
+        """Get next item from jira."""
+        while True:
+            for item in self.results:
+                yield self.transform_fn(item)
+
+            # Have we looked at all the results?
+            if self.results.startAt + self.results.maxResults > self.results.total:
+                break
+
+            self.results = self.get_more_fn(self.results.startAt + self.results.maxResults)
+
+    def __len__(self) -> int:
+        """Get the total number of items available."""
+        return self.results.total
 
 
 class IssueWrapper(object):
