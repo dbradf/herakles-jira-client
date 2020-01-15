@@ -9,6 +9,14 @@ def test_operators():
     assert under_test.jql_from_dict(query) == "'project' = BF"
 
 
+def test_custom_fields():
+    custom_field = "my_custom_field"
+    custom_map = {custom_field: 1234}
+    query = {custom_field: {"=": "BF"}}
+
+    assert under_test.jql_from_dict(query, custom_map) == f"'cf[{custom_map[custom_field]}]' = BF"
+
+
 def test_is_empty():
     query = {"resolution": {"is": "empty"}}
 
