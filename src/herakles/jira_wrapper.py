@@ -78,7 +78,7 @@ class JiraWrapper(object):
         :param search: Dictionary specifying search parameters.
         :return: Iterable of issues found.
         """
-        jql = jql_from_dict(search)
+        jql = jql_from_dict(search, self._custom_field_map)
 
         def transform_fn(result: Issue) -> IssueWrapper:
             return IssueWrapper(result, self._custom_field_map)
@@ -158,7 +158,7 @@ class IssueWrapper(object):
         :return: Value of attribute.
         """
         if item in self._custom_field_map:
-            return getattr(self, self._custom_field_map[item])
+            return getattr(self, f"customfield_{self._custom_field_map[item]}")
 
         if hasattr(self._issue, item):
             return getattr(self._issue, item)
