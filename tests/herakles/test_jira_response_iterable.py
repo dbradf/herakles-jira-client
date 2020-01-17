@@ -1,7 +1,7 @@
 from typing import List, Optional
 from unittest.mock import MagicMock
 
-import herakles.jira_wrapper as under_test
+import herakles.jira_response_iterable as under_test
 
 
 def create_mock_results(items: List, total: Optional[int] = None, start_at: int = 0):
@@ -17,7 +17,7 @@ class TestJiraResponseIterable:
     def test_no_items(self):
         results = create_mock_results([])
 
-        jira_iter = under_test._JiraResponseIterable(results, lambda x: x, lambda x: x)
+        jira_iter = under_test.JiraResponseIterable(results, lambda x: x, lambda x: x)
 
         count = 0
         for i, _ in enumerate(jira_iter):
@@ -29,7 +29,7 @@ class TestJiraResponseIterable:
         result_list = [x for x in range(10)]
         results = create_mock_results(result_list)
 
-        jira_iter = under_test._JiraResponseIterable(results, lambda x: x, lambda x: x)
+        jira_iter = under_test.JiraResponseIterable(results, lambda x: x, lambda x: x)
 
         items_seen = [x for x in jira_iter]
 
@@ -45,7 +45,7 @@ class TestJiraResponseIterable:
             result_list_1, total=total_items, start_at=len(result_list_0)
         )
 
-        jira_iter = under_test._JiraResponseIterable(results_0, lambda x: x, lambda _: results_1)
+        jira_iter = under_test.JiraResponseIterable(results_0, lambda x: x, lambda _: results_1)
 
         items_seen = [x for x in jira_iter]
 
