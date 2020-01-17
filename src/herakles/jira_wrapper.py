@@ -62,14 +62,14 @@ class JiraWrapper(object):
         """
         self._custom_field_map = read_yaml_file(file_path)[label]
 
-    def get_issue(self, jira_issue: str) -> IssueWrapper:
+    def get_issue(self, jira_issue: str, **kwargs: Optional[Dict]) -> IssueWrapper:
         """
         Retrieve the given jira issue.
 
         :param jira_issue: Jira issue to query.
         :return: Jira Issue.
         """
-        return IssueWrapper(self.jira.issue(jira_issue), self._custom_field_map)
+        return IssueWrapper(self.jira.issue(jira_issue, **kwargs), self._custom_field_map)
 
     def search_issues(self, search: Dict, **kwargs: Optional[Dict]) -> Iterable[Any]:
         """

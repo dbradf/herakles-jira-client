@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.5 - 2020-01-17
+- Support passthroughs to get issue.
+
 ## 0.1.4 - 2020-01-15
 - Support custom fields in a query.
 
