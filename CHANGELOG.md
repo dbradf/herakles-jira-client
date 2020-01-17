@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.7 - 2020-01-17
+- Better date handling.
+
 ## 0.1.6 - 2020-01-17
 - Add Issue history iterable.
 

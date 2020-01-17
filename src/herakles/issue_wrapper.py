@@ -42,6 +42,16 @@ class IssueWrapper(object):
         """Jira key of issue."""
         return self._issue.key
 
+    @property
+    def created(self) -> datetime:
+        """Date issue created."""
+        return convert_jira_date(self._issue.created)
+
+    @property
+    def updated(self) -> datetime:
+        """Date issue last updated."""
+        return convert_jira_date(self._issue.created)
+
     def history_iter(self) -> Iterable:
         """Iterate over the changelog history."""
         changelog = self.changelog
@@ -53,7 +63,7 @@ class IssueWrapper(object):
 class HistoryItem(object):
     """Representation of an item in a history event."""
 
-    def __init__(self, history: Dict, item: Dict):
+    def __init__(self, history: Any, item: Any):
         """
         Create a new HistoryItem.
 
@@ -65,13 +75,13 @@ class HistoryItem(object):
 
     @property
     def author_id(self) -> str:
-        """Id of the author."""
-        return self.history["author"]["key"]
+        """ID of the author."""
+        return self.history.author.key
 
     @property
     def created_date(self) -> datetime:
-        """Date the history item was created."""
-        return convert_jira_date(self.history["created"])
+        """Date the history item created."""
+        return convert_jira_date(self.history.created)
 
     def __getattr__(self, attrib: str) -> Any:
         """
